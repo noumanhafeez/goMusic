@@ -114,8 +114,8 @@ export class AudioProvider extends Component {
     if (permissionError) {
       return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <Text style={{ fontSize: 18, textAlign: 'center', color: 'red' }}>
-            It looks like you didn't grant the required permissions. Please enable them in your device settings.
+          <Text style={{ fontSize: 18, textAlign: 'center', color: 'black' }}>
+            Ooops! It looks like you didn't grant the required permissions. Please enable them in your device settings.
           </Text>
         </View>
       );
