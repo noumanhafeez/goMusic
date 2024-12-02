@@ -1,6 +1,7 @@
+import React, { useContext, useMemo, useState, useEffect } from "react";
 import {
   Dimensions,
-  ScrollView,
+  FlatList,
   StyleSheet,
   Text,
   View,
@@ -10,52 +11,67 @@ import {
   AppState,
   Alert,
 } from "react-native";
-import React, { Component } from "react";
 import { AudioContext } from "../context/AudioProivder";
-import { RecyclerListView, DataProvider, LayoutProvider } from "recyclerlistview";
-import AudioListItems from "../components/AudioListItems";
 import { Audio } from "expo-av";
 import { pause, play, playNext, resume } from "../misc/audioController";
+import AudioListItems from "../components/AudioListItems";
+import debounce from "lodash.debounce";
 
-export class AudioList extends Component {
-  static contextType = AudioContext;
+// Memoized Audio List Item Component
+const MemoizedAudioListItems = React.memo(AudioListItems);
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      OptionModalVisible: false,
-      searchText: '',
-      appState: AppState.currentState,
+const AudioList = () => {
+  const context = useContext(AudioContext);
+  const [searchText, setSearchText] = useState("");
+  const [optionModalVisible, setOptionModalVisible] = useState(false);
+  const [currentItem, setCurrentItem] = useState(null);
+
+  useEffect(() => {
+    const setupAudioMode = async () => {
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: false,
+        staysActiveInBackground: true,
+        playsInSilentModeIOS: true,
+      });
     };
-    this.currentItem = {};
-  }
 
-  setupAudioMode = async () => {
-    await Audio.setAudioModeAsync({
-      allowsRecordingIOS: false,
-      staysActiveInBackground: true, // Allow audio to play in background
-      playsInSilentModeIOS: true,
-    });
+    setupAudioMode();
+
+    const handleAppStateChange = (nextAppState) => {
+      // Handle app state changes if necessary
+    };
+
+    AppState.addEventListener("change", handleAppStateChange);
+    return () => {
+      AppState.removeEventListener("change", handleAppStateChange);
+    };
+  }, []);
+
+  const filterAudioFiles = (audioFiles, searchText) => {
+    return audioFiles.filter((audio) =>
+      audio.filename.toLowerCase().includes(searchText.toLowerCase())
+    );
   };
 
-  handleDelete = () => {
-    const { currentItem } = this.state;
-    const { audioFiles, updateState } = this.context;
+  const handleSearchChange = debounce((text) => {
+    setSearchText(text);
+  }, 300);
 
+  const handleDelete = () => {
     if (currentItem) {
       Alert.alert(
         "Confirm Delete",
         `Are you sure you want to delete ${currentItem.filename}?`,
         [
-          { text: "Cancel", onPress: () => {}, style: "cancel" },
+          { text: "Cancel", style: "cancel" },
           {
             text: "Delete",
             onPress: () => {
-              const updatedAudioFiles = audioFiles.filter(
+              const updatedAudioFiles = context.audioFiles.filter(
                 (audio) => audio.id !== currentItem.id
               );
-              updateState(this.context, { audioFiles: updatedAudioFiles });
-              this.setState({ OptionModalVisible: false });
+              context.updateState(context, { audioFiles: updatedAudioFiles });
+              setOptionModalVisible(false);
             },
           },
         ],
@@ -64,54 +80,16 @@ export class AudioList extends Component {
     }
   };
 
-  async componentDidMount() {
-    // Set up audio mode to allow background playback
-    await this.setupAudioMode();
-
-    // Listen for app state changes
-    AppState.addEventListener("change", this.handleAppStateChange);
-  }
-
-  componentWillUnmount() {
-    AppState.removeEventListener("change", this.handleAppStateChange);
-  }
-
-  layoutProvider = new LayoutProvider(
-    (i) => "audio",
-    (type, dim) => {
-      switch (type) {
-        case "audio":
-          dim.width = Dimensions.get("window").width;
-          dim.height = 80;
-          break;
-        default:
-          dim.width = 0;
-          dim.height = 0;
-      }
-    }
-  );
-
-  // Filter the audio files based on the search text
-  filterAudioFiles = (audioFiles, searchText) => {
-    return audioFiles.filter(audio => 
-      audio.filename.toLowerCase().includes(searchText.toLowerCase())
-    );
-  };
-
-  handleSearchChange = (text) => {
-    this.setState({ searchText: text });
-  };
-
-  handleAudioPress = async (audio) => {
+  const handleAudioPress = async (audio) => {
     const { soundObj, playbackObj, currentAudio, updateState, audioFiles } =
-      this.context;
+      context;
 
     if (soundObj === null) {
       const playbackObj = new Audio.Sound();
       const status = await play(playbackObj, audio.uri);
       const index = audioFiles.indexOf(audio);
 
-      return updateState(this.context, {
+      return updateState(context, {
         currentAudio: audio,
         playbackObj: playbackObj,
         soundObj: status,
@@ -122,7 +100,7 @@ export class AudioList extends Component {
 
     if (soundObj.isLoaded && soundObj.isPlaying && currentAudio.id === audio.id) {
       const status = await pause(playbackObj);
-      return updateState(this.context, {
+      return updateState(context, {
         soundObj: status,
         isPlaying: false,
       });
@@ -130,13 +108,13 @@ export class AudioList extends Component {
 
     if (soundObj.isLoaded && !soundObj.isPlaying && currentAudio.id === audio.id) {
       const status = await resume(playbackObj);
-      return updateState(this.context, { soundObj: status, isPlaying: true });
+      return updateState(context, { soundObj: status, isPlaying: true });
     }
 
     if (soundObj.isLoaded && currentAudio.id !== audio.id) {
       const status = await playNext(playbackObj, audio.uri);
       const index = audioFiles.indexOf(audio);
-      return updateState(this.context, {
+      return updateState(context, {
         currentAudio: audio,
         soundObj: status,
         isPlaying: true,
@@ -145,80 +123,75 @@ export class AudioList extends Component {
     }
   };
 
-  rowRenderer = (type, item, index, extendedState) => {
+  const renderItem = ({ item, index }) => {
+    const { isPlaying, currentAudioIndex } = context;
     return (
-      <AudioListItems
+      <MemoizedAudioListItems
         title={item.filename}
         duration={item.duration}
-        isPlaying={extendedState.isPlaying}
-        activeListItem={this.context.currentAudioIndex === index}
-        onAudioPress={() => this.handleAudioPress(item)}
+        isPlaying={isPlaying}
+        activeListItem={currentAudioIndex === index}
+        onAudioPress={() => handleAudioPress(item)}
         onOptionPress={() => {
-          // Set the selected song in the state
-          this.setState({ currentItem: item, OptionModalVisible: true });
+          setCurrentItem(item);
+          setOptionModalVisible(true);
         }}
       />
     );
   };
 
-  render() {
-    return (
-      <AudioContext.Consumer>
-        {({ audioFiles, dataProvider, isPlaying }) => {
-          const filteredAudioFiles = this.filterAudioFiles(audioFiles, this.state.searchText);
-          const filteredDataProvider = new DataProvider((r1, r2) => r1 !== r2).cloneWithRows(filteredAudioFiles);
+  const filteredAudioFiles = useMemo(
+    () => filterAudioFiles(context.audioFiles, searchText),
+    [context.audioFiles, searchText]
+  );
 
-          return (
-            <ImageBackground
-              source={require("../../assets/Backgrounds/shad.jpg")}
-              style={styles.container}
+  return (
+    <ImageBackground
+      source={require("../../assets/Backgrounds/shad.jpg")}
+      style={styles.container}
+    >
+      <View style={styles.searchBarContainer}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search audio..."
+          onChangeText={handleSearchChange}
+        />
+      </View>
+
+      <FlatList
+        data={filteredAudioFiles}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={renderItem}
+        initialNumToRender={10}
+        maxToRenderPerBatch={10}
+        updateCellsBatchingPeriod={50}
+        windowSize={5}
+        contentContainerStyle={{ paddingBottom: 100 }}
+      />
+
+      {optionModalVisible && (
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>
+              {currentItem ? currentItem.filename : "No song selected"}
+            </Text>
+
+            <Text style={styles.modalOption} onPress={handleDelete}>
+              Delete
+            </Text>
+
+            <Text
+              style={styles.modalOption}
+              onPress={() => setOptionModalVisible(false)}
             >
-              <View style={styles.searchBarContainer}>
-                <TextInput
-                  style={styles.searchInput}
-                  placeholder="Search audio..."
-                  value={this.state.searchText}
-                  onChangeText={this.handleSearchChange} // Correct function reference
-                />
-              </View>
-
-              <RecyclerListView
-                dataProvider={filteredDataProvider}
-                layoutProvider={this.layoutProvider}
-                rowRenderer={this.rowRenderer}
-                extendedState={{ isPlaying }}
-                style={{ width: Dimensions.get('window').width, height: Dimensions.get('window').height }}
-              />
-
-              {this.state.OptionModalVisible && (
-                <View style={styles.modalOverlay}>
-                  <View style={styles.modalContent}>
-                    {/* Show the title of the selected song */}
-                    <Text style={styles.modalTitle}>
-                      {this.state.currentItem ? this.state.currentItem.filename : "No song selected"}
-                    </Text>
-
-                    <Text style={styles.modalOption} onPress={this.handleDelete}>
-                      Delete
-                    </Text>
-
-                    <Text
-                      style={styles.modalOption}
-                      onPress={() => this.setState({ OptionModalVisible: false })}
-                    >
-                      Cancel
-                    </Text>
-                  </View>
-                </View>
-              )}
-
-            </ImageBackground>
-          );
-        }}
-      </AudioContext.Consumer>
-    );
-  }
-}
+              Cancel
+            </Text>
+          </View>
+        </View>
+      )}
+    </ImageBackground>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -229,17 +202,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 10,
     fontSize: 16,
-    width: 360,
-    color: "#333",  // Dark text for readability
+    width: "100%",
+    color: "#333",
   },
   searchBarContainer: {
-    marginTop: 7,
-    marginBottom: 5,
+    marginVertical: 10,
     marginHorizontal: 20,
-    paddingVertical: 10,
-    flexDirection: "row",  // Make the search input and icon align horizontally
-    alignItems: "center",  // Center the elements vertically
-    backgroundColor: "#f7f7f7",  // Light background color for the search bar area
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f7f7f7",
     borderRadius: 25,
     paddingLeft: 10,
   },
@@ -263,22 +234,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 15,
-    color: "#333", // Dark color for the title
-    textAlign: "center", // Center the title
+    color: "#333",
+    textAlign: "center",
   },
   modalOption: {
     fontSize: 16,
-    color: "#007BFF", // Blue color for options
-    marginBottom: 12,
-    textAlign: "center", // Center the option text
-    paddingVertical: 8,
-    borderRadius: 5,
-    backgroundColor: "#F1F1F1", // Light background for the option
-    elevation: 2, // Slight shadow to make the button stand out
-  },
-  modalOptionDelete: {
-    fontSize: 16,
-    color: "#FF6347", // Red color for delete option
+    color: "#007BFF",
     marginBottom: 12,
     textAlign: "center",
     paddingVertical: 8,
@@ -286,6 +247,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#F1F1F1",
     elevation: 2,
   },
+  // Styles remain the same
 });
 
 export default AudioList;
