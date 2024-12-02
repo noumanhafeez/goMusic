@@ -1,78 +1,92 @@
-import { StyleSheet, Text, View, Modal, StatusBar, TouchableWithoutFeedback } from 'react-native'
-import React from 'react'
-import color from '../misc/color'
+import React from "react";
+import { Modal, View, Text, TouchableOpacity, StyleSheet } from "react-native";
 
-const OptionModal = ({visible, currentItem, onClose, onPlayPress, onPlaylistPress }) => {
-    const {filename} = currentItem
+const OptionModal = ({ visible, onClose, currentItem, onPlayPress, onPlaylistPress, onDeletePress }) => {
   return (
-    <>
-    <StatusBar hidden/>
-    <Modal 
-    visible={visible}
-    animationType='slide'
-    transparent
-    
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      onRequestClose={onClose}
     >
-        <View style={styles.modal}>
-            <View style={styles.optionContainer}>
-            <TouchableWithoutFeedback onPress={onPlayPress}>
-                <Text style={styles.option}>Play</Text>
-            </TouchableWithoutFeedback>
-            <TouchableWithoutFeedback onPress={onPlaylistPress}>
-                <Text style={styles.option}>Add to playlist</Text>
-            </TouchableWithoutFeedback>
-            </View>
-        </View>
-        <TouchableWithoutFeedback onPress={onClose}>
-            <View style={styles.modalBG}/>
-        </TouchableWithoutFeedback> 
-    </Modal>
-    </>
-  )
-}
+      <View style={styles.modalContainer}>
+        <Text style={styles.modalTitle}>
+          {currentItem?.filename || "No Song Selected"}
+        </Text>
 
-export default OptionModal
+        <TouchableOpacity style={styles.optionButton} onPress={onPlayPress}>
+          <Text style={styles.optionText}>Play</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.optionButton} onPress={onPlaylistPress}>
+          <Text style={styles.optionText}>Add to Playlist</Text>
+        </TouchableOpacity>
+
+        {/* Delete Button */}
+        <TouchableOpacity style={styles.optionButton} onPress={onDeletePress}>
+          <Text style={styles.optionText}>Delete</Text>
+        </TouchableOpacity>
+
+        {/* Cancel Button */}
+        <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
+          <Text style={styles.cancelText}>Cancel</Text>
+        </TouchableOpacity>
+      </View>
+    </Modal>
+  );
+};
 
 const styles = StyleSheet.create({
-    modal:{
-        position: 'absolute',
-        bottom:0,
-        right:0,
-        opacity:0.9,
-        left:0,
-        backgroundColor:'black',
-        borderTopRightRadius:20,
-        borderTopLeftRadius:20,
-        zIndex:9999
-    },
-    optionContainer:{
-        padding:30,
-        backgroundColor: 'white',
-    },
-    title:{
-        fontSize:18,
-        left:60,
-        top:40,
-        fontWeight:'bold',
-        paddingBottom: 40,
-        color: color.FONT_MEDIUM
-    },
-    option:{
-        fontSize:16,
-        fontWeight:'bold',
-        paddingVertical:10,
-        color:'white',
-        opacity:0.4,
-        textAlign:'center',
-        letterSpacing:1
-    },
-    modalBG:{
-        position:'absolute',
-        top:0,
-        right:0,
-        left:0,
-        bottom:0,
-        color:color.MODAL_BG
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.6)", // Dimmed background for focus
+  },
+  modalContainer: {
+    height: 400,
+    top: 200,
+    width: 300, // Adjust to fit the screen
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    left: 60,
+    padding: 20,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5, // For Android shadow effect
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  optionButton: {
+    width: "100%", // Full width of the modal
+    paddingVertical: 12,
+    backgroundColor: "#007BFF",
+    borderRadius: 8,
+    marginBottom: 15,
+    alignItems: "center",
+  },
+  optionText: {
+    color: "#fff",
+    fontSize: 16,
+  },
+  cancelButton: {
+    width: "100%",
+    paddingVertical: 12,
+    backgroundColor: "red",
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  cancelText: {
+    color: "#fff",
+    fontSize: 16,
+  },
+});
 
-    }
-})
+export default OptionModal;

@@ -1,25 +1,36 @@
 {
   "expo": {
-    "name": "goMusic",
+    "name": "Music Player",
     "slug": "goMusic",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "icon": "./assets/resize_man.png",
+    "userInterfaceStyle": "white",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "image": "./assets/file.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#FFC0CB"
     },
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      }
+        "foregroundImage": "./assets/file.png",
+        "backgroundColor": "#FFC0CB"
+      },
+      "splash": {
+      "image": "./assets/file.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#FFC0CB"
+    },
+
+      "permissions": [
+          "WAKE_LOCK", 
+          "FOREGROUND_SERVICE" 
+      ],
+      "package": "com.noumanhafeez.goMusic"
     },
     "web": {
       "favicon": "./assets/favicon.png"

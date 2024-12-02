@@ -1,15 +1,11 @@
-import { StyleSheet, Text, View, Dimensions, Image, ImageBackground, TouchableOpacity, Pressable, Platform } from 'react-native';
-import React, { useContext, useEffect, useState, Animate, Easing } from 'react';
-import color from '../misc/color';
+import { StyleSheet, Text, View, Dimensions, Image, ImageBackground, TouchableOpacity, Platform } from 'react-native';
+import React, { useContext, useEffect, useState} from 'react';
 import Slider from '@react-native-community/slider';
 import PlayerButton from '../components/PlayerButton';
 import { AudioContext } from '../context/AudioProivder';
-import { Audio } from 'expo-av';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { convertTime } from '../misc/helper';
-import { LinearGradient } from 'expo-linear-gradient'; // Import LinearGradient
 import { useNavigation } from '@react-navigation/native'; 
-import { Feather } from '@expo/vector-icons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useFavorites } from '../components/FavContext'; // Update the path as needed
 
@@ -251,7 +247,7 @@ export default Player;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    bottom: Platform.OS === 'ios' ? 0 : 30
+    bottom: Platform.OS === 'ios' ? 0 : 10
     // backgroundColor:'black'
   },
   timestampContainer: {

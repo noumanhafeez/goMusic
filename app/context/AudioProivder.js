@@ -1,5 +1,5 @@
-import { Alert, Text, View } from 'react-native';
-import React, { Component, createContext } from 'react';
+import { Alert, Text, View} from 'react-native';
+import React, { Component, createContext} from 'react';
 import * as MediaLibrary from 'expo-media-library';
 import { DataProvider } from 'recyclerlistview';
 import { Audio } from 'expo-av';

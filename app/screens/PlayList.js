@@ -11,7 +11,6 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import Slider from '@react-native-community/slider';
 import { useFavorites } from '../components/FavContext';
 import { AudioContext } from '../context/AudioProivder';
 import { play, playNext, playPrevious } from '../misc/audioController'; // Ensure this file exists
