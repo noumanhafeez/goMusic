@@ -8,7 +8,7 @@
     "userInterfaceStyle": "white",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/file.png",
+      "image": "./assets/resize_man.png",
       "resizeMode": "cover",
       "backgroundColor": "#FFC0CB"
     },
@@ -17,11 +17,11 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/file.png",
+        "foregroundImage": "./assets/resize_man.png",
         "backgroundColor": "#FFC0CB"
       },
       "splash": {
-      "image": "./assets/file.png",
+      "image": "./assets/resize_man.png",
       "resizeMode": "cover",
       "backgroundColor": "#FFC0CB"
     },
@@ -33,7 +33,7 @@
       "package": "com.noumanhafeez.goMusic"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/resize_man.png"
     },
     "extra": {
       "eas": {

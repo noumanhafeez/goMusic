@@ -33,7 +33,7 @@ export class AudioProvider extends Component {
       "This app needs access to your audio files (MP3s).",
       [
         {
-          text: "I am ready",
+          text: "Allow",
           onPress: () => this.getPermission(),
         },
         {
