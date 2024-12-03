@@ -210,7 +210,7 @@ const handlePrevButtonPress = () => {
         </View>
       </View>
       <Slider
-        style={{ bottom:70,height: 20, width: width, }}
+        style={{ bottom:90,height: 20, width: width, }}
         minimumValue={0}
         maximumValue={1}
         minimumTrackTintColor='#eb9234'
@@ -255,13 +255,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between', // Space between left and right
     width: '100%', // Ensure it takes full width
     paddingLeft:20,
-    paddingRight:20
+    paddingRight:20,
   },
   image: {
     width: 300, // Adjust dimensions as needed
     height: 300,
     resizeMode: 'contain', // Ensures the image scales correctly
-    bottom:40,
+    bottom:70,
     borderRadius:30
   },
   backButton: {
@@ -275,12 +275,14 @@ const styles = StyleSheet.create({
   currentTime: {
     fontSize: 14,
     color: 'black', // You can adjust the color as needed
-    opacity:0.5
+    opacity:0.5,
+    bottom:20
   },
   totalTime: {
     fontSize: 14,
     color: 'black', // You can adjust the color as needed
     opacity:0.5,
+    bottom:20,
     textAlign: 'right', // Ensure the duration is aligned to the right
   },
   audioCount: {
@@ -289,7 +291,7 @@ const styles = StyleSheet.create({
     opacity:0.4,
     color:'black',
     fontSize: 15,
-    top:30
+    top:50
   },
   header: {
     flexDirection: 'row',
@@ -321,7 +323,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 16,
-    padding: 50,
+    padding: 70,
     right:10,
     opacity: 0.7,
     color: 'gray',
@@ -334,11 +336,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingVertical: 15,
-    bottom:50
+    bottom:80
   },
   touchable:{ 
     position:'absolute', 
-    bottom:240,
+    bottom:260,
     left:25,
   }
 });

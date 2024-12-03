@@ -74,22 +74,28 @@ const PlayList = () => {
   };
 
   const handleSongEnd = async () => {
-    if (currentSongIndex === null || !favorites[currentSongIndex]) return;
-
+    if (currentSongIndex === null || favorites.length === 0) return;
+  
+    // Looping: When the last song finishes, go back to the first song.
     const nextSongIndex = (currentSongIndex + 1) % favorites.length;
     const nextSong = favorites[nextSongIndex];
-
-    const status = await playNext(playbackObj, nextSong.uri);
-    updateState({
-      currentAudio: nextSong,
-      soundObj: status,
-      isPlaying: true,
-      currentAudioIndex: nextSongIndex,
-    });
-
-    setCurrentSongIndex(nextSongIndex);
-    setSliderValue(0);
+  
+    try {
+      const status = await playNext(playbackObj, nextSong.uri);
+      updateState({
+        currentAudio: nextSong,
+        soundObj: status,
+        isPlaying: true,
+        currentAudioIndex: nextSongIndex,
+      });
+  
+      setCurrentSongIndex(nextSongIndex);
+      setSliderValue(0);
+    } catch (error) {
+      console.error('Error in handleSongEnd:', error);
+    }
   };
+  
 
   const handlePreviousSong = async () => {
     if (currentSongIndex === null || !favorites[currentSongIndex]) return;
@@ -151,42 +157,49 @@ const PlayList = () => {
         
         {/* Modal */}
         <Modal
-          visible={showModal}
-          onRequestClose={() => setShowModal(false)}
-          animationType="slide"
-          transparent={true}
+  visible={showModal}
+  onRequestClose={async () => {
+    setShowModal(false);
+    if (playbackObj && isPlaying) {
+      await playbackObj.pauseAsync(); // Pause the song when the modal is closed
+      setIsPlaying(false);
+    }
+  }}
+  animationType="fade"
+  transparent={true}
+>
+  <View style={styles.modalBackground}>
+    <View style={styles.modalContainer}>
+      <Text style={styles.modalTitle}>{currentAudio?.filename || 'Unknown Song'}</Text>
+      <View style={styles.controls}>
+        <TouchableOpacity onPress={handlePreviousSong} style={styles.controlButton}>
+          <MaterialCommunityIcons name="skip-previous" size={40} color="white" />
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={async () => {
+            setIsPlaying(!isPlaying);
+            if (isPlaying) {
+              await playbackObj.pauseAsync();
+            } else {
+              await playbackObj.playAsync();
+            }
+          }}
+          style={styles.controlButton}
         >
-          <View style={styles.modalBackground}>
-            <View style={styles.modalContainer}>
-              <Text style={styles.modalTitle}>{currentAudio?.filename || 'Unknown Song'}</Text>
-              <View style={styles.controls}>
-                <TouchableOpacity onPress={handlePreviousSong} style={styles.controlButton}>
-                  <MaterialCommunityIcons name="skip-previous" size={40} color="white" />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={async () => {
-                    setIsPlaying(!isPlaying);
-                    if (isPlaying) {
-                      await playbackObj.pauseAsync();
-                    } else {
-                      await playbackObj.playAsync();
-                    }
-                  }}
-                  style={styles.controlButton}
-                >
-                  <MaterialCommunityIcons
-                    name={isPlaying ? 'pause' : 'play'}
-                    size={40}
-                    color="white"
-                  />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={handleSongEnd} style={styles.controlButton}>
-                  <MaterialCommunityIcons name="skip-next" size={40} color="white" />
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        </Modal>
+          <MaterialCommunityIcons
+            name={isPlaying ? 'pause' : 'play'}
+            size={40}
+            color="white"
+          />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={handleSongEnd} style={styles.controlButton}>
+          <MaterialCommunityIcons name="skip-next" size={40} color="white" />
+        </TouchableOpacity>
+      </View>
+    </View>
+  </View>
+</Modal>
+
       </View>
     </ImageBackground>
   );

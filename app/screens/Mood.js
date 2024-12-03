@@ -34,13 +34,14 @@ const songsData = {
     { name: 'Pi Jaun', file: require('../../Songs/aesthetic/PiJaun.mp3') },
     { name: 'Royiaan', file: require('../../Songs/aesthetic/Royiaan.mp3') },
     { name: 'Yakeen', file: require('../../Songs/aesthetic/Yakeen.mp3') },
+    { name: 'Subko Sub Nahi Milta', file: require('../../Songs/sad/Bayaannahimilta.mp3') },
+
   ],
   Sad: [
     { name: 'Zara Si Dil', file: require('../../Songs/sad/ZaraSa.mp3') },
     { name: 'Ijazat', file: require('../../Songs/sad/Ijazat.mp3') },
     { name: 'Agar Tum Sath ho', file: require('../../Songs/sad/agartumsathho.mp3') },
     { name: 'Tuhjse Naraz Nahi', file: require('../../Songs/sad/Naraznahi.mp3') },
-    { name: 'Subko Sub Nahi Milta', file: require('../../Songs/sad/Bayaannahimilta.mp3') },
   ]
 };
 
@@ -151,7 +152,7 @@ const Mood = () => {
           </TouchableOpacity>
             <View style={styles.modalContent}>
             <View style={{height:40, width:190, alignItems:'center', marginBottom:10, borderRadius:10, backgroundColor:'pink'}}>
-              <Text style={styles.modalHeader}>Playlist: {selectedMood}</Text>
+              <Text style={styles.modalHeader}>Playlist</Text>
               </View>
               <FlatList
   data={songsData[selectedMood]}
