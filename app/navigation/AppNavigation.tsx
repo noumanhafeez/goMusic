@@ -3,14 +3,9 @@ import React from 'react'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import AudioList from '../screens/AudioList';
 import Player from '../screens/Player';
-import { FontAwesome, FontAwesome6, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
 import { MyTabBar } from '../components/TabBar';
 import PlayList from '../screens/PlayList';
-import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import Mood from '../screens/Mood';
-import FavoriteScreen from '../screens/FavScreen';
+
 
 
 const Tab = createBottomTabNavigator()
@@ -45,7 +40,6 @@ const AppNavigation = () => {
       <Tab.Screen name="AudioList" component={AudioList} options={{title: 'Songs'}} />
       <Tab.Screen name="Player" component={Player} options={{title: 'Play'}} />
       <Tab.Screen name="Play" component={PlayList} options={{title: 'Favorites'}} />
-      <Tab.Screen name="Mood" component={Mood} options={{title: 'Mood'}} />
 
 
     </Tab.Navigator>

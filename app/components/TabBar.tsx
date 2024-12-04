@@ -19,8 +19,8 @@ export function MyTabBar({ state, descriptors, navigation }) {
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: tabBarPositionX.value }],
-    height: buttonWidth - 55,
-    width: buttonWidth - 32,
+    height: buttonWidth - 75,
+    width: buttonWidth - 25,
   }));
 
   const onTabBarLayout = (e: LayoutChangeEvent) => {
